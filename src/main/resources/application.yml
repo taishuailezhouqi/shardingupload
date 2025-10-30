@@ -6,3 +6,6 @@ spring:
     multipart:
       max-file-size: 5GB     # 单个文件最大限制
       max-request-size: 5GB  # 总上传大小限制
+  datasource:
+    url: jdbc:mysql://localhost:3306/shardingupload?useUnicode=true&characterEncoding=utf-8&useSSL=false
+

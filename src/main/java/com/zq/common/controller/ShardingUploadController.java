@@ -15,7 +15,14 @@ import java.io.InputStream;
 @RequestMapping("/shardingupload")
 public class ShardingUploadController {
 
-    // 上传接口
+
+
+
+
+
+    /**
+     * 上传接口 先将文件分片（在没有前端传递的情况下）
+     */
     @PostMapping("/splitSave")
     public String splitSave(@RequestParam("file") MultipartFile file) throws IOException {
         // 设置每片大小，这里是 500MB
