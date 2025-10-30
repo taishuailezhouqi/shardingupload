@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5GB     # 单个文件最大限制
+      max-request-size: 5GB  # 总上传大小限制
