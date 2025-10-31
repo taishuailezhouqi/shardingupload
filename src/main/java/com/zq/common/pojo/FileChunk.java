@@ -3,6 +3,7 @@ package com.zq.common.pojo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serial;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 /**
  * 文件分片表
  */
+@Builder
 @Data
 @TableName("file_chunk")
 public class FileChunk implements Serializable {

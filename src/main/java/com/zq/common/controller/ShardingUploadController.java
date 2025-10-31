@@ -1,23 +1,74 @@
 package com.zq.common.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.zq.common.pojo.FileChunk;
+import com.zq.common.service.ShardingUploadService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/shardingupload")
+@RequiredArgsConstructor
 public class ShardingUploadController {
 
+    private final ShardingUploadService shardingUploadService;
 
 
+    @PostMapping("/shardingUpload")
+    public Map<String, Object> shardingUpload(@RequestParam("file")MultipartFile file,
+                                              @RequestParam("fileMd5")String fileMd5,
+                                              @RequestParam("fileName")String fileName,
+                                              @RequestParam("fileSize")Long fileSize,
+                                              @RequestParam("fileChunkIndex")String fileChunkIndex,
+                                              @RequestParam("totalChunks")Integer totalChunks,
+                                              @RequestParam("userId")Long userId
+    ) throws IOException {
+        FileChunk fileChunk = FileChunk.builder().fileMd5(fileMd5).fileName(fileName).fileSize(fileSize).chunkIndex(Integer.parseInt(fileChunkIndex)).userId(userId).totalChunks(totalChunks).build();
+        Map<String, Object> result = new HashMap<>();
+        //检查文件唯一性  true为可秒传，false需要重新上传
+        boolean isFileNameUnique = shardingUploadService.validateFileUniqueness(fileChunk.getFileMd5(), fileChunk.getFileName(), fileChunk.getFileSize());
 
+        if (isFileNameUnique) {
+            //放入oss等操作
+            result.put("status", "success");
+            result.put("message", "秒传成功");
+            result.put("secondTransfer", true);
+            return result;
+        }
+        //需要上传
+        Map<String, Object> stringObjectMap = shardingUploadService.checkFileStatus(fileChunk.getFileMd5());
+        boolean canInstantUpload = (boolean) stringObjectMap.get("canInstantUpload");
+        if (canInstantUpload) {
+            //放入oss等操作
+            result.put("status", "success");
+            result.put("message", "秒传成功");
+            result.put("secondTransfer", true);
+            return result;
+        }
+        Object uploadedChunks = stringObjectMap.get("uploadedChunks");
+        if (Objects.isNull(uploadedChunks)) {
+            //说明没有上传过  需要上传
+            result = shardingUploadService.uploadChunk(file, fileChunk);
+        } else {
+            //说明有上传过，断点续传
+            result = shardingUploadService.handleResumeUpload(file, fileChunk, (List<Integer>) uploadedChunks);
+        }
+        boolean uploaded = (boolean) result.get("uploaded");
+        if (uploaded) {
+            return shardingUploadService.mergeChunks(fileChunk.getFileMd5(), fileChunk.getFileName());
+        } else {
+            return result;
+        }
+    }
 
 
     /**
