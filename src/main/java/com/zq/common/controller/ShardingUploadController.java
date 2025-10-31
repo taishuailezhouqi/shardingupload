@@ -23,6 +23,16 @@ public class ShardingUploadController {
     private final ShardingUploadService shardingUploadService;
 
 
+    /**
+     * 使用分片上传、秒传、断点续传
+     * @param file 上传的分片文件
+     * @param fileMd5 文件的唯一md5
+     * @param fileName 文件名
+     * @param fileSize 文件大小
+     * @param fileChunkIndex 当前上传文件的索引
+     * @param totalChunks 整个文件分为几个分片文件
+     * @param userId 用户id
+     */
     @PostMapping("/shardingUpload")
     public Map<String, Object> shardingUpload(@RequestParam("file")MultipartFile file,
                                               @RequestParam("fileMd5")String fileMd5,
