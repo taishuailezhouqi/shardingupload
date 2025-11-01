@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -224,11 +221,11 @@ public class ShardingUploadService {
             String mergedFilePath = mergeChunkFiles(chunks, fileName);
 
             // 3. 验证合并后的文件MD5
-//            if (!validateMergedFile(mergedFilePath, fileMd5)) {
-//                result.put("status", "error");
-//                result.put("message", "文件合并后MD5验证失败");
-//                return result;
-//            }
+            if (!validateMergedFile(mergedFilePath, fileMd5)) {
+                result.put("status", "error");
+                result.put("message", "文件合并后MD5验证失败");
+                return result;
+            }
 
             // 4. 保存文件索引记录
             FileIndex fileIndex = new FileIndex();
@@ -339,8 +336,10 @@ public class ShardingUploadService {
         if (!chunks.isEmpty()) {
             String chunkDir = chunks.get(0).getChunkPath().substring(0, chunks.get(0).getChunkPath().lastIndexOf("/"));
             File dir = new File(chunkDir);
-            if (dir.exists() && dir.isDirectory() && dir.list().length == 0) {
-                dir.delete();
+            if (dir.exists() && dir.isDirectory() && Objects.requireNonNull(dir.list()).length == 0) {
+                if (dir.delete()){
+                    log.info("删除成功: {}", chunkDir);
+                }
             }
         }
     }

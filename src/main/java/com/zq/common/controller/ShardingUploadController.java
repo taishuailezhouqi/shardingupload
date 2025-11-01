@@ -3,6 +3,7 @@ package com.zq.common.controller;
 import com.zq.common.pojo.FileChunk;
 import com.zq.common.service.ShardingUploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/shardingupload")
 @RequiredArgsConstructor
@@ -158,7 +160,11 @@ public class ShardingUploadController {
         // 保存路径（自己改）
         String basePath = "E:/upload_chunks/";
         File dir = new File(basePath);
-        if (!dir.exists()) dir.mkdirs();
+        if (!dir.exists()) {
+            if (dir.mkdirs()){
+                log.info("创建文件分片目录成功:{}", basePath);
+            }
+        }
 
         try (InputStream in = file.getInputStream()) {
             byte[] buffer = new byte[CHUNK_SIZE];
