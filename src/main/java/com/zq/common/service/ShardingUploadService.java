@@ -25,6 +25,13 @@ public class ShardingUploadService {
 
     private static final Logger log = LoggerFactory.getLogger(ShardingUploadService.class);
 
+    // 定义服务器IP
+    private static final String[] servers = {
+            "http://192.168.200.1",
+            "http://192.168.200.2",
+            "http://192.168.200.3"
+    };
+
     /**
      * 验证文件唯一性
      * 判断是否存在相同的文件，比较md5和文件大小
@@ -328,8 +335,6 @@ public class ShardingUploadService {
                 }
             }
 
-            // 删除数据库记录
-//            fileChunkMapper.deleteById(chunk.getId());
         }
 
         // 删除分片目录（如果为空）
