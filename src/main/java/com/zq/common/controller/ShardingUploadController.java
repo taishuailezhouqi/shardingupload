@@ -152,8 +152,8 @@ public class ShardingUploadController {
      */
     @PostMapping("/splitSave")
     public String splitSave(@RequestParam("file") MultipartFile file) throws IOException {
-        // 设置每片大小，这里是 500MB
-        final int CHUNK_SIZE = 500 * 1024 * 1024;
+        // 设置每片大小，这里是 20MB
+        final int CHUNK_SIZE = 20 * 1024 * 1024;
 
         // 获取文件原始名
         String originalName = file.getOriginalFilename();
